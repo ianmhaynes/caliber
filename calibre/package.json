@@ -1,0 +1,12 @@
+{
+  "name": "calibre-watch-identifier",
+  "version": "1.0.0",
+  "description": "AI-powered watch movement identifier",
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.0"
+  }
+}
