@@ -24,10 +24,9 @@ When given an image or description of a watch movement, provide a detailed ident
   "found_in": "Notable watches that use this calibre"
 }
 
-If you cannot identify the specific calibre, provide your best assessment with Low confidence and explain what family or era the movement belongs to. Return only valid JSON.`;
+If you cannot identify the specific calibre, provide your best assessment with Low confidence and explain what family or era the movement belongs to. Return only valid JSON with no other text.`;
 
 export default async function handler(req, res) {
-  // CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -64,7 +63,7 @@ export default async function handler(req, res) {
     }
 
     const message = await client.messages.create({
-      model: "claude-opus-4-5",
+      model: "claude-opus-4-5-20251101",
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content }],
@@ -75,8 +74,10 @@ export default async function handler(req, res) {
       .map((b) => b.text)
       .join("");
 
-    const clean = text.replace(/```json|```/g, "").trim();
-    const result = JSON.parse(clean);
+    // Robustly extract JSON - find the outermost { } block
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("No JSON found in response");
+    const result = JSON.parse(jsonMatch[0]);
     res.status(200).json(result);
   } catch (err) {
     console.error(err);
